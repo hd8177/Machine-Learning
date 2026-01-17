@@ -51,11 +51,11 @@ def create_dataloaders_from_single_folder(
     np.random.shuffle(indices)
 
     train_idx = indices[:train_len]
-    val_idx   = indices[train_len:]
+    test_idx   = indices[train_len:]
 
     # 4. Subsets (this is the key fix)
     train_dataset = Subset(train_data_base, train_idx)
-    val_dataset   = Subset(test_data_base,  val_idx)
+    test_dataset   = Subset(test_data_base,  test_idx)
 
     # 5. DataLoaders
     train_loader = DataLoader(
