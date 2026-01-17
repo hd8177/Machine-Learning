@@ -46,6 +46,3 @@ class ClassificationModel(nn.Module):
         x = self.classifier(x)
         return x
 
-
-      let's say if x.shape from second conv block is torch.Size([32, 10, 14, 14])
-      then multiply by 14*14'''
