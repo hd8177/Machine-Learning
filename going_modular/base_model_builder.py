@@ -47,15 +47,5 @@ class ClassificationModel(nn.Module):
         return x
 
 
-''' Checking how much to multiply by for hidden_units for classifier
-  def forward(self, x):
-      x = self.conv_block_1(x)
-      print(x.shape)
-      x= self.conv_block_2(x)
-      print(x.shape)
-      x=self.classifier(x)
-      print(x.shape)
-      return x
-
       let's say if x.shape from second conv block is torch.Size([32, 10, 14, 14])
       then multiply by 14*14'''
