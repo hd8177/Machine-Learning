@@ -4,17 +4,11 @@ from typing import Tuple, List
 import numpy as np
 
 
-from torchvision import transforms
-from typing import Tuple
-
 def create_transforms(
     image_size: int = 64,
     hflip_p: float = 0.5,
     rotation_deg: float = 10.0
 ) -> Tuple[transforms.Compose, transforms.Compose]:
-    """
-    Creates train and test transforms with configurable augmentation.
-    """
 
     train_transforms = transforms.Compose([
         transforms.Resize((image_size, image_size)),
@@ -36,20 +30,22 @@ def create_dataloaders_from_single_folder(
     image_size: int = 64,
     batch_size: int = 32,
     train_split: float = 0.8,
+    hflip_p: float = 0.5,
+    rotation_deg: float = 10.0,
     num_workers: int = 2,
     seed: int = 42
 ) -> Tuple[DataLoader, DataLoader, List[str]]:
-    """
-    Uses ONE folder and ONE split of indices.
-    Applies different transforms via separate base datasets.
-    """
 
-    # 1. Transforms
-    train_tfms, test_tfms = create_transforms(image_size=image_size)
+    # 1. Create transforms
+    train_transform_method, test_transform_method = create_transforms(
+        image_size=image_size,
+        hflip_p=hflip_p,
+        rotation_deg=rotation_deg
+    )
 
-    # 2. Base datasets (same files, different transforms)
-    train_data_base = datasets.ImageFolder(root=data_dir, transform=train_tfms)
-    test_data_base  = datasets.ImageFolder(root=data_dir, transform=test_tfms)
+    # 2. Base datasets (same images, different transforms)
+    train_data_base = datasets.ImageFolder(root=data_dir, transform=train_transform_method)
+    test_data_base  = datasets.ImageFolder(root=data_dir, transform=test_transform_method)
 
     class_names = train_data_base.classes
 
@@ -64,7 +60,7 @@ def create_dataloaders_from_single_folder(
     train_idx = indices[:train_len]
     test_idx   = indices[train_len:]
 
-    # 4. Subsets (this is the key fix)
+    # 4. Subsets
     train_dataset = Subset(train_data_base, train_idx)
     test_dataset   = Subset(test_data_base,  test_idx)
 
@@ -86,7 +82,10 @@ def create_dataloaders_from_single_folder(
     return train_loader, test_loader, class_names
 
 
-def create_test_transform(image_size: int = 64):
+def create_test_transform(image_size: int = 64) -> transforms.Compose:
+    """
+    Transform for inference-only datasets (e.g. Kaggle test1).
+    """
     return transforms.Compose([
         transforms.Resize((image_size, image_size)),
         transforms.ToTensor()
